@@ -15,29 +15,176 @@ namespace GCSS
             try
 
             {
-                // Get the current directory.
-                path = Directory.GetCurrentDirectory();
-                target = path + @"\Files\";
+                //Establece la carpeta de donde leer los archivos.
+                //Está definido que lea los archivos desde la carpeta documentos del usuario que ejecuta el proceso.
+                //Si la carpeta de archivos no existe el programa no se ejecuta.
+                path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                target = path + @"\ArchivosCartera\";
                 if (!Directory.Exists(target))
                 {
-                    Directory.CreateDirectory(target);
-                }
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("\n¡ERROR!");
+                    Console.ResetColor();
+                    Console.WriteLine("No Existe el directorio \"ArchivosCartera\" en la ruta:\n {0} \n", path);
+                    Console.WriteLine("Por favor cree el directorio en la ruta señalada \ny agregue allí los archivos de cartera a procesar.");
+                    Console.WriteLine("\nEl programa se cerrará");
+                    System.Threading.Thread.Sleep(10000);
 
-                // Change the current directory
-                // Environment.CurrentDirectory = (target);
+                    Environment.Exit(0);
+                }
+                else
+                {
+                    Console.WriteLine("Leyendo archivos de: {0} \n", target);
+                }
             }
             catch (Exception e)
             {
-                Console.WriteLine("El proceso falló: {0}", e.ToString());
+                Console.WriteLine("El proceso falló:\n {0}\n", e.ToString());
             }
             return target;
         }
 
-        public static string[] GetFilePath(string _path)
+        public static string[] GetFilesGroup(string _path)
         {
             string[] _filespath;
             _filespath = Directory.GetFiles(_path);
             return _filespath;
+        }
+
+        public static string GetFullFileName(string _path)
+        {
+            string name;
+            bool r = false;
+            string file = Path.GetFileName(_path);
+            name = Path.GetFileNameWithoutExtension(_path);
+
+            if (name.Length == 8)
+            {
+                name = string.Concat(name, "0000");
+                r = true; ;
+            }
+            else
+            {
+                if (name.Length == 12)
+                {
+                    r = true;
+                }
+                else
+                {
+                    r = false;
+                }
+            }
+            
+            if (!r)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("\n¡ERROR!");
+                Console.ResetColor();
+                Console.WriteLine("El nombre del archivo \"{0}\" no cumple con los requisitos para este programa.\n", name);
+                Console.WriteLine("Recuerde que el archivo debe nombrarse segun la fecha en que fue creado.");
+                Console.WriteLine("Debe referirse a una fecha válida.");
+                Console.WriteLine("El nombre se crea segun el formato: \"aaaammdd.xls\".");
+                Console.WriteLine("Tambien es válido usar fecha, hora (formato 24 horas) y minutos \"aaaammddHHmm.xls\".\n");
+                Console.WriteLine("Según la fecha y hora que use en el nombre de archivo será el orden de procesamiento del mismo.\n");
+                Console.WriteLine("Por favor renombrelo para poder ejecutar la aplicación correctamente.");
+                Console.WriteLine("\nEl programa se cerrará.");
+                System.Threading.Thread.Sleep(20000);
+
+                Environment.Exit(0);
+            }
+            return name;
+        }
+        
+        public static bool CheckNameValidity(string _name)
+        {
+            bool r = true;
+            string name = _name;
+            int year;
+            int month;
+            int day;
+            int hora;
+            int minutos;
+
+            if (r && int.TryParse(name.Substring(0, 4), out year))
+            {
+                if (year < 1900 || year > DateTime.Now.Year)
+                {
+                    r = false;
+                }
+            }
+            else
+            {
+                r = false;
+            }
+
+            if(r && int.TryParse(name.Substring(4, 2), out month))
+            {
+                if (month < 1 || month > 12)
+                {
+                    r = false;
+                }
+            }
+            else
+            {
+                r = false;
+            }
+
+            if (r && int.TryParse(name.Substring(6, 2), out day))
+            {
+                if (day < 1 || day > 31)
+                {
+                    r = false;
+                }
+            }
+            else
+            {
+                r = false;
+            }
+
+            if (r && int.TryParse(name.Substring(8, 2), out hora))
+            {
+                if (hora < 0 || hora > 23)
+                {
+                    r = false;
+                }
+            }
+            else
+            {
+                r = false;
+            }
+
+            if (r && int.TryParse(name.Substring(10, 2), out minutos))
+            {
+                if (minutos < 0 || minutos > 59)
+                {
+                    r = false;
+                }
+            }
+            else
+            {
+                r = false;
+            }
+
+
+            if (!r)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("\n¡ERROR!");
+                Console.ResetColor();
+                Console.WriteLine("El nombre del archivo \"{0}\" no cumple con los requisitos para este programa.\n", _name);
+                Console.WriteLine("Recuerde que el archivo debe nombrarse segun la fecha en que fue creado.");
+                Console.WriteLine("Debe referirse a una fecha válida.");
+                Console.WriteLine("El nombre se crea segun el formato: \"aaaammdd.xls\".");
+                Console.WriteLine("Tambien es válido usar fecha, hora (formato 24 horas) y minutos \"aaaammddHHmm.xls\".\n");
+                Console.WriteLine("Según la fecha y hora que use en el nombre de archivo será el orden de procesamiento del mismo.\n");
+                Console.WriteLine("Por favor renombrelo para poder ejecutar la aplicación correctamente.");
+                Console.WriteLine("\nEl programa se cerrará.");
+                System.Threading.Thread.Sleep(20000);
+
+                Environment.Exit(0);
+            }
+
+            return r;
         }
 
         public static ReadedFile ReadFile(string _path)

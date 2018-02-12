@@ -14,16 +14,25 @@ namespace GCSS_Consola
         static void Main(string[] args)
         {
             string _filesdir = string.Empty;
-            string[] _filepath;
+            string[] _filesgroup;
 
             Console.WriteLine("Iniciando proceso de lectura de archivo(s)...");
 
             _filesdir = GCSS.FileManagement.SetDirectory();
-            _filepath = GCSS.FileManagement.GetFilePath(_filesdir);
 
-            int qtyfiles = _filepath.Count();
+            _filesgroup = GCSS.FileManagement.GetFilesGroup(_filesdir);
 
-            //-- que pasa si no hay archivos?
+            int qtyfiles = _filesgroup.Count();
+
+            if(qtyfiles==0)
+            {
+                Console.WriteLine("No se encontraron archivos que procesar.");
+                Console.WriteLine("Se cerrará el programa.");
+                System.Threading.Thread.Sleep(10000);
+
+                Environment.Exit(0);
+            }
+
             if (qtyfiles != 1)
                 //mensaje en plural
                 Console.WriteLine("Se encontraron {0} archivos para procesar...", qtyfiles);
@@ -31,8 +40,16 @@ namespace GCSS_Consola
                 //mensaje en singular
                 Console.WriteLine("Se encontraron {0} archivo para procesar...", qtyfiles);
 
+            foreach (string filepath in _filesgroup)
+            {
+                string namefile;
+                bool r = true;
+                namefile = GCSS.FileManagement.GetFullFileName(filepath);
+                r = GCSS.FileManagement.CheckNameValidity(namefile);
+            }
+
             int cnt = 0;
-            foreach (string filepath in _filepath)
+            foreach (string filepath in _filesgroup)
             {
                 bool c = true;
                 cnt++;
@@ -42,10 +59,10 @@ namespace GCSS_Consola
                 Console.WriteLine("Abriendo: {0}", Path.GetFileName(filepath));
                 ReadedFile rf = GCSS.FileManagement.ReadFile(filepath);
 
-                //if (c)
-                //{
-                //    c = GCS.GestionArchivo.SetRegistroBase(rf);
-                //}
+                if (c)
+                {
+                    c = GCSS.GestionArchivo.SetRegistroBase(rf);
+                }
 
                 //if (c)
                 //{
