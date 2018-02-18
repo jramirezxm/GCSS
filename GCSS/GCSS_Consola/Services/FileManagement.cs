@@ -99,13 +99,13 @@ namespace GCSS
         {
             bool r = true;
             string name = _name;
-            int year;
-            int month;
-            int day;
-            int hora;
-            int minutos;
+            //int year;
+            //int month;
+            //int day;
+            //int hora;
+            //int minutos;
 
-            if (r && int.TryParse(name.Substring(0, 4), out year))
+            if (r && int.TryParse(name.Substring(0, 4), out int year))
             {
                 if (year < 1900 || year > DateTime.Now.Year)
                 {
@@ -117,7 +117,7 @@ namespace GCSS
                 r = false;
             }
 
-            if(r && int.TryParse(name.Substring(4, 2), out month))
+            if(r && int.TryParse(name.Substring(4, 2), out int month))
             {
                 if (month < 1 || month > 12)
                 {
@@ -129,7 +129,7 @@ namespace GCSS
                 r = false;
             }
 
-            if (r && int.TryParse(name.Substring(6, 2), out day))
+            if (r && int.TryParse(name.Substring(6, 2), out int day))
             {
                 if (day < 1 || day > 31)
                 {
@@ -141,7 +141,7 @@ namespace GCSS
                 r = false;
             }
 
-            if (r && int.TryParse(name.Substring(8, 2), out hora))
+            if (r && int.TryParse(name.Substring(8, 2), out int hora))
             {
                 if (hora < 0 || hora > 23)
                 {
@@ -153,7 +153,7 @@ namespace GCSS
                 r = false;
             }
 
-            if (r && int.TryParse(name.Substring(10, 2), out minutos))
+            if (r && int.TryParse(name.Substring(10, 2), out int minutos))
             {
                 if (minutos < 0 || minutos > 59)
                 {
@@ -192,13 +192,14 @@ namespace GCSS
             ReadedFile Me = new ReadedFile
             {
                 fileName = Path.GetFileName(_path),
+                filepath = _path,
                 ReadedData = new DataSet()
             };
 
             var connectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + _path + ";Extended Properties=\"Excel 12.0;IMEX=1;HDR=NO;TypeGuessRows=0;ImportMixedTypes=Text\""; ;
             using (var conn = new OleDbConnection(connectionString))
             {
-
+                bool isValid = true;
                 try
                 {
                     conn.Open();
@@ -209,14 +210,41 @@ namespace GCSS
                     {
                         conn.Close();
                     }
-                    Console.WriteLine("No se pudo abrir el archivo: {0}", ex.Message);
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("\n¡ERROR!");
+                    Console.ResetColor();
+                    Console.WriteLine("No se pudo abrir el archivo:\n{0}\nEl archivo no es un archivo de Excel válido.\n{1}", _path, ex.Message);
                     return null;
                 }
 
 
                 DataTable schemaTable = conn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, new Object[] { null, null, null, "TABLE" });
-                string strTblName = schemaTable.Rows[1].ItemArray[2].ToString();
-                strTblName = strTblName.Substring(0, strTblName.IndexOf("$"));
+
+                string strTblName="";
+                foreach (DataRow row in schemaTable.Rows)
+                {
+                    strTblName = row.ItemArray[2].ToString();
+                    strTblName = strTblName.Substring(0, strTblName.IndexOf("$"));
+                    if(strTblName =="datos")
+                    {
+                        isValid = true;
+                        break;
+                    }
+                    else
+                    {
+                        isValid = false;
+                    }
+                }
+
+                //string strTblName = schemaTable.Rows[1].ItemArray[2].ToString();
+                if (!isValid)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("\n¡ERROR!");
+                    Console.ResetColor();
+                    Console.WriteLine("El archivo no contiene una hoja llamada \"datos\" que se pueda leer.\n");
+                    Environment.Exit(0);
+                }                
 
                 using (var cmd = conn.CreateCommand())
                 {
@@ -230,12 +258,27 @@ namespace GCSS
                     {
                         if (adapter != null) { adapter.Dispose(); }
                         if (Me.ReadedData != null) { Me.ReadedData.Dispose(); }
-                        Console.WriteLine("No se pudo leer el contenido del archivo: {0}", ex.Message);
+                        Console.WriteLine("No se pudo leer el contenido del archivo: {0}",ex.Message);
                         return null;
                     }
                 }
             }
             return Me;
+        }
+
+        public override string ToString()
+        {
+            return base.ToString();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
 }

@@ -15,6 +15,9 @@ namespace GCSS_Libreria.Models
         //    this.ReadedData = null;
         //}
         public string fileName { get; set; }
+        public string filepath { get; set; }
         public DataSet ReadedData { get; set; }
+        public string CheckSum { get; set; }
+        public DateTime CreatedDate { get; set; }
     }
 }

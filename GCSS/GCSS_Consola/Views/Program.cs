@@ -42,16 +42,18 @@ namespace GCSS_Consola
 
             foreach (string filepath in _filesgroup)
             {
+
                 string namefile;
                 bool r = true;
                 namefile = GCSS.FileManagement.GetFullFileName(filepath);
-                r = GCSS.FileManagement.CheckNameValidity(namefile);
+                r = FileManagement.CheckNameValidity(namefile);
             }
 
             int cnt = 0;
             foreach (string filepath in _filesgroup)
             {
                 bool c = true;
+                
                 cnt++;
                 Console.WriteLine(System.Environment.NewLine);
                 Console.WriteLine("Preparando archivo {0} de {1}", cnt, qtyfiles);
@@ -59,10 +61,23 @@ namespace GCSS_Consola
                 Console.WriteLine("Abriendo: {0}", Path.GetFileName(filepath));
                 ReadedFile rf = GCSS.FileManagement.ReadFile(filepath);
 
-                if (c)
+                if(rf==null)
                 {
-                    c = GCSS.GestionArchivo.SetRegistroBase(rf);
+                    continue;
                 }
+
+                rf.CheckSum = GestionArchivo.GetHash(filepath);
+                rf.CreatedDate = GestionArchivo.GetCreationTime(filepath);
+
+                if(c)
+                {
+                    GestionArchivo.checkDuplicity(rf);
+                }
+
+                //if (c)
+                //{
+                //    c = GCSS.GestionArchivo.SetRegistroBase(rf);
+                //}
 
                 //if (c)
                 //{
