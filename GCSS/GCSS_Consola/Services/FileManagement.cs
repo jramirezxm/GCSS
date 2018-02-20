@@ -196,7 +196,7 @@ namespace GCSS
                 ReadedData = new DataSet()
             };
 
-            var connectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + _path + ";Extended Properties=\"Excel 12.0;IMEX=1;HDR=NO;TypeGuessRows=0;ImportMixedTypes=Text\""; ;
+                var connectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + _path + ";Extended Properties=\"Excel 12.0;IMEX=1;HDR=NO;TypeGuessRows=0;ImportMixedTypes=Text\""; ;
             using (var conn = new OleDbConnection(connectionString))
             {
                 bool isValid = true;
